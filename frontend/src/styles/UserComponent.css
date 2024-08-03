@@ -1,0 +1,22 @@
+/* src/styles/UserComponent.css */
+.quiz-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.quiz-item {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-item p {
+    font-size: 18px;
+    margin: 0;
+}
+
+.quiz-item button {
+    margin-top: 10px;
+}
