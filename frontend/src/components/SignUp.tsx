@@ -24,7 +24,7 @@ function SignUp() {
     };
 
     return (
-        <div className="sign-up-container"  style={{ width: '500px' }} >
+        <div className="sign-up-container"       >
             <form className="sign-up-form" onSubmit={handleSubmit}>
                 <h2>Sign Up</h2>
                 <label htmlFor="username">User Name:</label>

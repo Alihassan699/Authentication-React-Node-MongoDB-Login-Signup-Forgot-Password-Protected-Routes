@@ -2,6 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
+import questionRoutes from './routes/questionRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
+import resultRoutes from './routes/resultRoutes.js';
 import { connectdb } from './config/db.js';
 
 
@@ -30,6 +33,9 @@ connectdb().catch((error) => {
 
 //routes
 app.use(cookieParser())
+app.use('/api/questions', questionRoutes);
+app.use('/api/quizzes', quizRoutes);
+app.use('/api/results', resultRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/', (req, res) =>{
   res.send('Hello World!');
