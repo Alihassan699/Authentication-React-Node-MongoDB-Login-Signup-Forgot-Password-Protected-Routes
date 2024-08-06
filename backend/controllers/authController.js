@@ -7,7 +7,7 @@ import sendMail from '../config/mailer.js';
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // Sign Up
-export const signup = async (req, res) => {
+export const signup = async (req, res, next) => {
     const { username, email, password, fullName } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -19,12 +19,12 @@ export const signup = async (req, res) => {
         res.status(201).json({ userId, message: 'User created' });
     } catch (error) {
         console.error('Sign up error:', error);
-        res.status(500).json({ error: 'Failed to register' });
+        next(error); // Pass the error to the error-handling middleware
     }
 };
 
 // Sign In
-export const signin = async (req, res) => {
+export const signin = async (req, res, next) => {
     const { email, password } = req.body;
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -39,12 +39,12 @@ export const signin = async (req, res) => {
         }
     } catch (error) {
         console.error('Sign in error:', error);
-        res.status(500).json({ error: 'Failed to sign in' });
+        next(error); // Pass the error to the error-handling middleware
     }
 };
 
-// Request Password Reseth
-export const requestPasswordReset = async (req, res) => {
+// Request Password Reset
+export const requestPasswordReset = async (req, res, next) => {
     const { email } = req.body;
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -68,12 +68,12 @@ export const requestPasswordReset = async (req, res) => {
         res.status(200).json({ message: 'OTP sent to email' });
     } catch (error) {
         console.error('Password reset request error:', error);
-        res.status(500).json({ error: 'Failed to request password reset' });
+        next(error); // Pass the error to the error-handling middleware
     }
 };
 
 // Reset Password
-export const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res, next) => {
     const { email, otp, newPassword } = req.body;
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -104,6 +104,6 @@ export const resetPassword = async (req, res) => {
         res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
         console.error('Password reset error:', error);
-        res.status(500).json({ error: 'Failed to reset password' });
+        next(error); // Pass the error to the error-handling middleware
     }
 };

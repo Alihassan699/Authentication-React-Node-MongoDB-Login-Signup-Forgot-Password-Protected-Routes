@@ -1,51 +1,42 @@
 import { pool } from '../config/db.js';
 
-const submitQuiz = async (req, res) => {
+const submitQuiz = async (req, res, next) => {
   const { userId, quizId, answers } = req.body;
   try {
     const quiz = await pool.query('SELECT * FROM quizzes WHERE id = $1', [quizId]);
     const questions = quiz.rows[0].questions;
 
     let correctAnswered = 0;
-    let wrongAnswered = 0;
+    let attempted = 0;
 
-    for (let i = 0; i < questions.length; i++) {
-      const question = await pool.query('SELECT * FROM questions WHERE id = $1', [questions[i]]);
-      if (question.rows[0].correct_answer === answers[i]) {
-        correctAnswered++;
-      } else {
-        wrongAnswered++;
+    questions.forEach((question, index) => {
+      if (answers[index] === question.correct_answer) {
+        correctAnswered += 1;
       }
-    }
-
-    const totalQuestions = questions.length;
-    const attemptedQuestions = answers.length;
+      attempted += 1;
+    });
 
     const result = await pool.query(
-      'INSERT INTO results (total_questions, attempted_questions, correct_answered, wrong_answered) VALUES ($1, $2, $3, $4) RETURNING *',
-      [totalQuestions, attemptedQuestions, correctAnswered, wrongAnswered]
+      'INSERT INTO results (user_id, quiz_id, total_questions, attempted, correct_answered) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, quizId, questions.length, attempted, correctAnswered]
     );
-
-    await pool.query('UPDATE quizzes SET result = $1 WHERE id = $2', [result.rows[0].id, quizId]);
-    await pool.query('UPDATE users SET quizzes = array_append(quizzes, $1) WHERE id = $2', [quizId, userId]);
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error submitting quiz:', err); // Log the error
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const getResult = async (req, res) => {
+const getResultsByQuizId = async (req, res, next) => {
   const { quizId } = req.params;
   try {
-    const quiz = await pool.query('SELECT result FROM quizzes WHERE id = $1', [quizId]);
-    const resultId = quiz.rows[0].result;
-
-    const result = await pool.query('SELECT * FROM results WHERE id = $1', [resultId]);
-    res.status(200).json(result.rows[0]);
+    const result = await pool.query('SELECT * FROM results WHERE quiz_id = $1', [quizId]);
+    res.status(200).json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error getting results by quiz ID:', err); // Log the error
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-export { submitQuiz, getResult };
+export { submitQuiz, getResultsByQuizId };

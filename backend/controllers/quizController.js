@@ -1,8 +1,6 @@
-// controllers/quizController.js
-
 import { pool } from '../config/db.js';
 
-const createQuiz = async (req, res) => {
+const createQuiz = async (req, res, next) => {
   const { questions } = req.body;
   try {
     const result = await pool.query(
@@ -12,21 +10,21 @@ const createQuiz = async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error creating quiz:', err); // Log the error
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const getQuizzes = async (req, res) => {
+const getQuizzes = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM quizzes');
     res.status(200).json(result.rows);
   } catch (err) {
     console.error('Error getting quizzes:', err); // Log the error
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const updateQuiz = async (req, res) => {
+const updateQuiz = async (req, res, next) => {
   const { id } = req.params;
   const { questions } = req.body;
   try {
@@ -37,18 +35,18 @@ const updateQuiz = async (req, res) => {
     res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error('Error updating quiz:', err); // Log the error
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const deleteQuiz = async (req, res) => {
+const deleteQuiz = async (req, res, next) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM quizzes WHERE id = $1', [id]);
     res.status(204).send();
   } catch (err) {
     console.error('Error deleting quiz:', err); // Log the error
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 

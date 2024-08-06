@@ -21,7 +21,7 @@
 .admin-container form select,
 .admin-container form button {
     padding: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }

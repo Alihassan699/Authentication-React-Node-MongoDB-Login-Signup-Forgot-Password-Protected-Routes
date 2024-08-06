@@ -1,5 +1,3 @@
-// src/components/AdminComponent.tsx
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/AdminComponent.css';
@@ -44,7 +42,7 @@ const AdminComponent: React.FC = () => {
     const handleCreateQuiz = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:4000/api/quizzes', { questions: selectedQuestions });
+            await axios.post('http://localhost:4000/api/quizzes', { title: quizTitle, questions: selectedQuestions });
             setMessage('Quiz created successfully');
             setQuizTitle('');
             setSelectedQuestions([]);

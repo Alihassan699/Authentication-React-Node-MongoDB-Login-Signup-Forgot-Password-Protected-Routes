@@ -1,6 +1,6 @@
 import { pool } from '../config/db.js';
 
-const addQuestion = async (req, res) => {
+const addQuestion = async (req, res, next) => {
   const { statement, options, correct_answer } = req.body;
   try {
     const result = await pool.query(
@@ -9,20 +9,20 @@ const addQuestion = async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const getQuestions = async (req, res) => {
+const getQuestions = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM questions');
     res.status(200).json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const updateQuestion = async (req, res) => {
+const updateQuestion = async (req, res, next) => {
   const { id } = req.params;
   const { statement, options, correct_answer } = req.body;
   try {
@@ -32,17 +32,17 @@ const updateQuestion = async (req, res) => {
     );
     res.status(200).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
-const deleteQuestion = async (req, res) => {
+const deleteQuestion = async (req, res, next) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM questions WHERE id = $1', [id]);
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err); // Pass the error to the error-handling middleware
   }
 };
 
