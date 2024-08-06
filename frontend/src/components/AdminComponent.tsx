@@ -26,38 +26,36 @@ const AdminComponent: React.FC = () => {
         }
     };
 
-    const handleAddQuestion = (e: React.FormEvent) => {
+    const handleAddQuestion = async (e: React.FormEvent) => {
         e.preventDefault();
-        axios.post('http://localhost:4000/api/questions', { statement: question, options, correct_answer: correctAnswer })
-            .then(response => {
-                setMessage('Question added successfully');
-                fetchAllQuestions(); // Refresh the question list
-                setQuestion('');
-                setOptions(['', '', '', '']);
-                setCorrectAnswer('');
-            })
-            .catch(error => {
-                setMessage('Error adding question');
-                console.error(error);
-            });
+        try {
+            await axios.post('http://localhost:4000/api/questions', { statement: question, options, correct_answer: correctAnswer });
+            setMessage('Question added successfully');
+            fetchAllQuestions(); // Refresh the question list
+            setQuestion('');
+            setOptions(['', '', '', '']);
+            setCorrectAnswer('');
+        } catch (error) {
+            setMessage('Error adding question');
+            console.error(error);
+        }
     };
 
-    const handleCreateQuiz = (e: React.FormEvent) => {
+    const handleCreateQuiz = async (e: React.FormEvent) => {
         e.preventDefault();
-        axios.post('http://localhost:4000/api/quizzes', { title: quizTitle, questionIds: selectedQuestions })
-            .then(response => {
-                setMessage('Quiz created successfully');
-                setQuizTitle('');
-                setSelectedQuestions([]);
-            })
-            .catch(error => {
-                setMessage('Error creating quiz');
-                console.error(error);
-            });
+        try {
+            await axios.post('http://localhost:4000/api/quizzes', { questions: selectedQuestions });
+            setMessage('Quiz created successfully');
+            setQuizTitle('');
+            setSelectedQuestions([]);
+        } catch (error) {
+            setMessage('Error creating quiz');
+            console.error(error);
+        }
     };
 
     return (
-        <div className="admin-container">
+        <div className="admin-container" style={{ width: '500px' }} >
             <h2>Add New Question</h2>
             {message && <p>{message}</p>}
             <form onSubmit={handleAddQuestion}>

@@ -1,3 +1,5 @@
+// controllers/quizController.js
+
 import { pool } from '../config/db.js';
 
 const createQuiz = async (req, res) => {
@@ -9,6 +11,7 @@ const createQuiz = async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    console.error('Error creating quiz:', err); // Log the error
     res.status(500).json({ error: err.message });
   }
 };
@@ -18,6 +21,7 @@ const getQuizzes = async (req, res) => {
     const result = await pool.query('SELECT * FROM quizzes');
     res.status(200).json(result.rows);
   } catch (err) {
+    console.error('Error getting quizzes:', err); // Log the error
     res.status(500).json({ error: err.message });
   }
 };
@@ -32,6 +36,7 @@ const updateQuiz = async (req, res) => {
     );
     res.status(200).json(result.rows[0]);
   } catch (err) {
+    console.error('Error updating quiz:', err); // Log the error
     res.status(500).json({ error: err.message });
   }
 };
@@ -42,6 +47,7 @@ const deleteQuiz = async (req, res) => {
     await pool.query('DELETE FROM quizzes WHERE id = $1', [id]);
     res.status(204).send();
   } catch (err) {
+    console.error('Error deleting quiz:', err); // Log the error
     res.status(500).json({ error: err.message });
   }
 };

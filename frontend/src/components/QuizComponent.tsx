@@ -1,74 +1,55 @@
-// src/components/QuizComponent.tsx
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/QuizComponent.css';
 
-const QuizComponent: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const [questions, setQuestions] = useState<any[]>([]);
+const QuizComponent = ({ quizId }: { quizId: number }) => {
+    const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [selectedOption, setSelectedOption] = useState('');
-    const [message, setMessage] = useState('');
-    const navigate = useNavigate();
+    const [answers, setAnswers] = useState<string[]>([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:4000/api/quizzes/${id}/questions`)
-            .then(response => {
-                const shuffledQuestions = response.data.sort(() => Math.random() - 0.5);
-                setQuestions(shuffledQuestions);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }, [id]);
+        const fetchQuestions = async () => {
+            try {
+                const response = await axios.get(`/api/quizzes/${quizId}/questions`);
+                setQuestions(response.data);
+            } catch (error) {
+                console.error("Error fetching questions", error);
+            }
+        };
 
-    const handleNextQuestion = () => {
-        if (!selectedOption) {
-            setMessage('Please select an option.');
-            return;
-        }
-        setMessage('');
+        fetchQuestions();
+    }, [quizId]);
+
+    const handleAnswer = (answer: string) => {
+        setAnswers([...answers, answer]);
         setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setSelectedOption('');
     };
 
-    const handleSubmitQuiz = () => {
-        if (!selectedOption) {
-            setMessage('Please select an option.');
-            return;
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.post(`/api/quizzes/${quizId}/results`, {
+                userId: 1, // Replace with actual user ID
+                quizId,
+                totalQuestions: questions.length,
+                attemptedQuestions: answers.length,
+                correctAnswered: answers.filter(answer => answer === "correct").length, // Replace with actual logic
+                wrongAnswered: answers.filter(answer => answer === "wrong").length, // Replace with actual logic
+            });
+            console.log("Result saved:", response.data);
+        } catch (error) {
+            console.error("Error saving result", error);
         }
-        setMessage('');
-        // Submit quiz logic here
-        navigate('/result');
     };
+
+    if (currentQuestionIndex >= questions.length) {
+        return <button onClick={handleSubmit}>Submit</button>;
+    }
 
     return (
-        <div className="quiz-container">
-            {questions.length > 0 && (
-                <>
-                    <h2>{questions[currentQuestionIndex].statement}</h2>
-                    {questions[currentQuestionIndex].options.map((option: string, index: number) => (
-                        <div key={index}>
-                            <input
-                                type="radio"
-                                name="option"
-                                value={option}
-                                checked={selectedOption === option}
-                                onChange={(e) => setSelectedOption(e.target.value)}
-                            />
-                            <label>{option}</label>
-                        </div>
-                    ))}
-                    {message && <p>{message}</p>}
-                    {currentQuestionIndex < questions.length - 1 ? (
-                        <button onClick={handleNextQuestion}>Next</button>
-                    ) : (
-                        <button onClick={handleSubmitQuiz}>Submit</button>
-                    )}
-                </>
-            )}
+        <div>
+            <div>{questions[currentQuestionIndex].statement}</div>
+            {questions[currentQuestionIndex].options.map((option: string, index: number) => (
+                <button key={index} onClick={() => handleAnswer(option)}>{option}</button>
+            ))}
         </div>
     );
 };

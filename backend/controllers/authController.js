@@ -43,7 +43,7 @@ export const signin = async (req, res) => {
     }
 };
 
-// Request Password Reset
+// Request Password Reseth
 export const requestPasswordReset = async (req, res) => {
     const { email } = req.body;
     try {

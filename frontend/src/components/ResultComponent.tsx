@@ -1,32 +1,30 @@
-// src/components/ResultComponent.tsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import '../styles/ResultComponent.css';
 
-const ResultComponent: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const [result, setResult] = useState<any>(null);
+const ResultComponent = ({ quizId }: { quizId: number }) => {
+    const [result, setResult] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:4000/api/quizzes/${id}/result`)
-            .then(response => {
+        const fetchResult = async () => {
+            try {
+                const response = await axios.get(`/api/quizzes/${quizId}/results`);
                 setResult(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }, [id]);
+            } catch (error) {
+                console.error("Error fetching result", error);
+            }
+        };
+
+        fetchResult();
+    }, [quizId]);
 
     if (!result) return <div>Loading...</div>;
 
     return (
-        <div className="result-container">
-            <h2>Quiz Results</h2>
-            <p>Total Questions: {result.totalQuestions}</p>
-            <p>Correct Answers: {result.correctAnswers}</p>
-            <p>Your Score: {result.score}</p>
+        <div>
+            <div>Total Questions: {result.total_questions}</div>
+            <div>Attempted Questions: {result.attempted_questions}</div>
+            <div>Correct Answers: {result.correct_answered}</div>
+            <div>Wrong Answers: {result.wrong_answered}</div>
         </div>
     );
 };
